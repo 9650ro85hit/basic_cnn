@@ -8,7 +8,7 @@
 # Run google Colab file
 1. Create new notebook google colab
 2. Download Dataset from [Link](https://www.kaggle.com/datasets/abhikjha/imdb-wiki-faces-dataset/code) OR just Upload from kaggle.
-3. I am uploading form kaggle.<br>
-4.     1. Create a kaggle account. <br>
-5.     2. Go to your Profile section and Download kaggle.json file. <br>
-6.     3. Now Run all cell one by one. <br>
+3. I am uploading form kaggle.
+4.     1. Create a kaggle account. 
+5.     2. Go to your Profile section and Download kaggle.json file. 
+6.     3. Now Run all cell one by one. 
