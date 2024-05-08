@@ -11,4 +11,4 @@
 3. I am uploading form kaggle.
 4.     1. Create a kaggle account. 
 5.     2. Go to your Profile section and Download kaggle.json file. 
-6.     3. Now Run all cell one by one.[Colab File](age_model_colabFile.ipynb) 
+6. Now Run all cell one by one.[Colab File](age_model_colabFile.ipynb) 
