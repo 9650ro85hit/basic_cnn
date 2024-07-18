@@ -1,41 +1,44 @@
 import streamlit as st
-from tensorflow.keras.models import load_model
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+from tensorflow.keras.models import load_model
+from tensorflow.keras.losses import MeanSquaredError
+from PIL import Image
 
-def min_max_scaling(X):
-    X_min = np.min(X, axis=0)
-    X_max = np.max(X, axis=0)
-    zero_range_indices = np.where(X_max - X_min == 0)
-    X_max[zero_range_indices] = 1
-    X_scaled = (X - X_min) / (X_max - X_min)
-    return X_scaled
+custom_objects = {
+    'mse': MeanSquaredError(),
+}
 
-def predict_age_gender(image, model):
-    resized_image = cv2.resize(image, (100, 100))
-    gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-    gray_image = gray_image.reshape(100, 100, 1)
-    input_image = np.expand_dims(gray_image, axis=-1)
-    input_image = min_max_scaling(input_image)
-    age = model.predict(np.array([input_image]))
-    return age[0][0]
+model_path = 'D:/DeepLearning/age_gen_pred/age_gen_fin.h5'
+model = load_model(model_path, custom_objects=custom_objects)
 
-model = load_model('age_model_finalrss.h5')
+def preprocess_image(image):
+    image = Image.open(image).convert('RGB')
+    image = image.resize((128, 128))
+    img_array = np.array(image)
+    gray_img = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
+    img = gray_img.reshape(1, 128, 128, 1)
+    img = img.astype('float32') / 255.0
+    return img, img_array
 
+def predict_age_gender(model, image):
+    img, plt_img = preprocess_image(image)
+    pred = model.predict(img)
+    pred_gender = "Male" if round(pred[0][0][0]) == 0 else "Female"
+    pred_age = round(pred[1][0][0])
+    return pred_gender, pred_age, plt_img
 
-st.header("Age Detection")
-img_file_buffer = st.file_uploader('Upload a PNG image',  type=['png', 'jpg'])
+st.title("Age and Gender Predictor")
+st.write("Upload an image to predict the age and gender.")
 
-if img_file_buffer is not None:
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-    image = cv2.imdecode(np.frombuffer(img_file_buffer.read(), np.uint8), 1)
-    resized_image = cv2.resize(image, (200, 200))
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    thumbnail = image.resize((300, 300))
+    st.image(thumbnail, caption='Uploaded Image', use_column_width=False)
 
-    rgb_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
-
-    st.image(rgb_image, caption='Image Uploaded.', use_column_width=True)
-
-    if st.button("Predict"):
-        age = predict_age_gender(image, model)
-        st.write("Predicted age:", round(age,0))
+    if st.button('Predict'):
+        gender, age, plt_img = predict_age_gender(model, uploaded_file)
+        st.write(f"Predicted Gender: {gender}")
+        st.write(f"Predicted Age: {age}")
